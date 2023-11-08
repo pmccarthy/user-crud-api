@@ -19,11 +19,11 @@ type User struct {
 	Email    string `json:"email"`
 }
 
-type Database struct {
+type Repository struct {
 	DB *gorm.DB
 }
 
-func (d *Database) CreateUser(context *fiber.Ctx) error {
+func (r *Repository) CreateUser(context *fiber.Ctx) error {
 	user := User{}
 	err := context.BodyParser(&user)
 
@@ -34,7 +34,7 @@ func (d *Database) CreateUser(context *fiber.Ctx) error {
 		return err
 	}
 
-	err = d.DB.Create(&user).Error
+	err = r.DB.Create(&user).Error
 	if err != nil {
 		context.Status(http.StatusBadRequest).JSON(&fiber.Map{
 			"message": "Could not create user",
@@ -49,7 +49,7 @@ func (d *Database) CreateUser(context *fiber.Ctx) error {
 	return nil
 }
 
-func (d *Database) DeleteUser(context *fiber.Ctx) error {
+func (r *Repository) DeleteUser(context *fiber.Ctx) error {
 	userModel := models.Users{}
 	id := context.Params("id")
 	if id == "" {
@@ -59,7 +59,7 @@ func (d *Database) DeleteUser(context *fiber.Ctx) error {
 		return nil
 	}
 
-	err := d.DB.Delete(userModel, id)
+	err := r.DB.Delete(userModel, id)
 	if err.Error != nil {
 		context.Status(http.StatusBadRequest).JSON(&fiber.Map{
 			"message": "Could not delete user",
@@ -73,10 +73,10 @@ func (d *Database) DeleteUser(context *fiber.Ctx) error {
 	return nil
 }
 
-func (d *Database) GetUsers(context *fiber.Ctx) error {
+func (r *Repository) GetUsers(context *fiber.Ctx) error {
 	userModels := &[]models.Users{}
 
-	err := d.DB.Find(userModels).Error
+	err := r.DB.Find(userModels).Error
 	if err != nil {
 		context.Status(http.StatusBadRequest).JSON(&fiber.Map{})
 		return err
@@ -91,7 +91,7 @@ func (d *Database) GetUsers(context *fiber.Ctx) error {
 	return nil
 }
 
-func (d *Database) GetUserbyID(context *fiber.Ctx) error {
+func (r *Repository) GetUserbyID(context *fiber.Ctx) error {
 	userModel := &models.Users{}
 	id := context.Params("id")
 
@@ -102,7 +102,7 @@ func (d *Database) GetUserbyID(context *fiber.Ctx) error {
 		return nil
 	}
 
-	err := d.DB.Where("id = ?", id).First(userModel).Error
+	err := r.DB.Where("id = ?", id).First(userModel).Error
 	if err != nil {
 		context.Status(http.StatusBadRequest).JSON(&fiber.Map{
 			"message": "could not find user with specified ID",
@@ -118,7 +118,7 @@ func (d *Database) GetUserbyID(context *fiber.Ctx) error {
 	return nil
 }
 
-func (r *Database) SetupRoutes(app *fiber.App) {
+func (r *Repository) SetupRoutes(app *fiber.App) {
 	api := app.Group("/api")
 	api.Post("/create_user", r.CreateUser)
 	api.Get("/get_user/:id", r.GetUserbyID)
@@ -151,11 +151,11 @@ func main() {
 		log.Fatal("Could not migrate db")
 	}
 
-	d := Database{
+	r := Repository{
 		DB: db,
 	}
 	app := fiber.New()
-	d.SetupRoutes(app)
+	r.SetupRoutes(app)
 	app.Listen(":8080")
 	app.Use(logger.New())
 }
