@@ -1,12 +1,13 @@
-### Introduction
+# User CRUD API
+
+## Introduction
 An API Server supporting basic CRUD commands for user management backed by a PostgreSQL database
 
-### Pre-requisites
+### Prerequisites
 * go v1.20+
 
 ## Running locally
 Prior to running the server locally you will first need to specify configuration details of a target PostgreSQL v14.x instance using a local `.env` file
-
 
 ### Create local .env file
 ```bash
