@@ -64,10 +64,10 @@ curl --location 'http://localhost:8080/api/get_users'
 
 ### Get user by ID
 ```bash
-ID=1; curl --location "http://localhost:8080/api/get_user/+${ID}"
+ID=1; curl --location "http://localhost:8080/api/get_user/${ID}"
 ```
 
 ### Delete a user
 ```bash
-ID=1; curl --location --request DELETE "http://localhost:8080/api/delete_user/+${ID}"
+ID=1; curl --location --request DELETE "http://localhost:8080/api/delete_user/${ID}"
 ```
