@@ -1,7 +1,7 @@
 # User CRUD API
 
 ## Introduction
-An API Server supporting basic CRUD commands for user management backed by a PostgreSQL database
+A Go based API supporting basic CRUD functioality for user management backed by a PostgreSQL database
 
 ### Prerequisites
 * go v1.20+
