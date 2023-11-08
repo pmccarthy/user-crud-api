@@ -8,6 +8,7 @@ import (
 	"user-crud-api/storage"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 )
@@ -41,9 +42,9 @@ func (r *Repository) CreateUser(context *fiber.Ctx) error {
 		return err
 	}
 
-	context.Status(http.StatusOK).JSON(&fiber.Map{
-		"message": "User has been successfully added",
-	})
+	context.Status(http.StatusOK).JSON(&fiber.Map{})
+
+	log.Printf("Successfully created user: %s email: %s", user.Username, user.Email)
 
 	return nil
 }
@@ -53,7 +54,7 @@ func (r *Repository) DeleteUser(context *fiber.Ctx) error {
 	id := context.Params("id")
 	if id == "" {
 		context.Status(http.StatusInternalServerError).JSON(&fiber.Map{
-			"message": "id cannot be empty",
+			"message": "id parameter cannot be empty",
 		})
 		return nil
 	}
@@ -61,13 +62,13 @@ func (r *Repository) DeleteUser(context *fiber.Ctx) error {
 	err := r.DB.Delete(userModel, id)
 	if err.Error != nil {
 		context.Status(http.StatusBadRequest).JSON(&fiber.Map{
-			"message": "could not delete user",
+			"message": "Could not delete user",
 		})
 		return err.Error
 	}
-	context.Status(http.StatusOK).JSON(&fiber.Map{
-		"message": "user successfully deleted",
-	})
+	context.Status(http.StatusOK).JSON(&fiber.Map{})
+
+	log.Printf("Deleted user with id %s successfully", id)
 
 	return nil
 }
@@ -77,15 +78,15 @@ func (r *Repository) GetUsers(context *fiber.Ctx) error {
 
 	err := r.DB.Find(userModels).Error
 	if err != nil {
-		context.Status(http.StatusBadRequest).JSON(&fiber.Map{
-			"message": "Could not get users",
-		})
+		context.Status(http.StatusBadRequest).JSON(&fiber.Map{})
 		return err
 	}
 
 	context.Status(http.StatusOK).JSON(&fiber.Map{
 		"data": userModels,
 	})
+
+	log.Println("Get users request successful")
 
 	return nil
 }
@@ -109,9 +110,11 @@ func (r *Repository) GetUserbyID(context *fiber.Ctx) error {
 		return err
 	}
 	context.Status(http.StatusOK).JSON(&fiber.Map{
-		"message": "Found user with specified id",
-		"data":    userModel,
+		"data": userModel,
 	})
+
+	log.Printf("Retrieved user by ID: %s", id)
+
 	return nil
 }
 
@@ -154,4 +157,5 @@ func main() {
 	app := fiber.New()
 	r.SetupRoutes(app)
 	app.Listen(":8080")
+	app.Use(logger.New())
 }
